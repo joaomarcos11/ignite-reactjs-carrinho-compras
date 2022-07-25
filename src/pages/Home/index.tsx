@@ -28,28 +28,28 @@ const Home = (): JSX.Element => {
   //  { idProduto: quantidadeProduto }
 
   const cartItemsAmount = cart.reduce((sumAmount, product) => {
-    products[product.id] = sumAmount + 1
+    const newSumAmount = {...sumAmount};
+
+    newSumAmount[product.id] = product.amount;
+    return newSumAmount;
   }, {} as CartItemsAmount)
 
   useEffect(() => {
     async function loadProducts() {
-      api.get('products')
-        .then(({ data }) => {
-          setProducts(data.map((item: Product) => ({ 
-            id: item.id,
-            title: item.title,
-            price: item.price,
-            image: item.image,
-            priceFormatted: formatPrice(item.price)
-          })));
-        })
+      const response = await api.get<Product[]>('products');
+      const data = response.data.map(item => ({
+        ...item,
+          priceFormatted: formatPrice(item.price)
+      }));
+
+      setProducts(data);
     }
 
     loadProducts();
   }, []);
 
   function handleAddProduct(id: number) {
-    
+    addProduct(id);
   }
 
   return (
